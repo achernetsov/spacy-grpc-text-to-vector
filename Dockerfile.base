@@ -1,0 +1,43 @@
+# Multistage build with poetry; final image is slim, without poetry
+# https://stackoverflow.com/questions/74895750/should-i-use-poetry-in-production-dockerfile
+# https://stackoverflow.com/a/73324820/827704
+# https://www.reddit.com/r/django/comments/syfp0l/comment/hxy6zeq/?utm_source=share&utm_medium=web2x&context=3
+
+# Generate workable requirements.txt from Poetry dependencies
+FROM python:3.10-slim AS requirements
+
+ENV POETRY_HOME="/opt/poetry" \
+    POETRY_VIRTUALENVS_IN_PROJECT=1 \
+    POETRY_NO_INTERACTION=1
+
+# to run poetry directly as soon as it's installed
+ENV PATH="$POETRY_HOME/bin:$PATH"
+
+# install poetry
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl \
+    && curl -sSL https://install.python-poetry.org | python3 -
+
+WORKDIR /src
+
+# copy only pyproject.toml and poetry.lock file nothing else here
+COPY pyproject.toml ./
+
+# this will create the folder /app/.venv (might need adjustment depending on which poetry version you are using)
+# RUN poetry install --no-root --no-ansi --without dev
+
+RUN poetry export -f requirements.txt --no-ansi --without dev --without-hashes -o /src/requirements.txt
+
+# -----------------------------------------------------------------
+FROM python:3.10-slim
+
+WORKDIR /app
+
+# Install requirements
+COPY --from=requirements /src/requirements.txt .
+RUN pip install --upgrade pip
+RUN pip install --no-cache-dir --user -r requirements.txt
+
+COPY text_to_vector_pb2.py ./text_to_vector_pb2.py
+COPY text_to_vector_pb2_grpc.py ./text_to_vector_pb2_grpc.py
+COPY service.py ./service.py

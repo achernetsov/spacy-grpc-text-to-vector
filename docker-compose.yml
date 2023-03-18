@@ -1,0 +1,11 @@
+version: "3"
+
+services:
+  text-to-vector-en:
+    image: registry.gitlab.com/chipa-group/chipa-nlp/text-to-vector/en:2.0.0
+    ports:
+      - "50051:50051"
+#    build:
+#      context: .
+#      args:
+#        - NLP_MODEL=ru_core_news_md

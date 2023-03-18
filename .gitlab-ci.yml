@@ -1,0 +1,114 @@
+stages:
+  - build
+  - acceptance
+
+# before_script:
+#   - docker info
+
+# https://docs.gitlab.com/ee/user/packages/container_registry/index.html#build-and-push-by-using-gitlab-cicd
+build-image-latest-ru:
+  image: docker:20.10.16
+  stage: build
+  services:
+  - docker:20.10.16-dind
+  variables:
+    LANG: ru
+    # https://spacy.io/models/ru#ru_core_news_md  dim = 300
+    MODEL: ru_core_news_md
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build --build-arg NLP_MODEL=$MODEL -t $CI_REGISTRY_IMAGE/$LANG:latest .
+    - docker push $CI_REGISTRY_IMAGE/$LANG:latest
+  only:
+    - master
+
+build-image-latest-en:
+  image: docker:20.10.16
+  stage: build
+  services:
+  - docker:20.10.16-dind
+  variables:
+    LANG: en
+    # https://spacy.io/models/en#en_core_web_md
+    MODEL: en_core_web_md
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build --build-arg NLP_MODEL=$MODEL -t $CI_REGISTRY_IMAGE/$LANG:latest .
+    - docker push $CI_REGISTRY_IMAGE/$LANG:latest
+  only:
+    - master
+
+build-image-latest-pl:
+  image: docker:20.10.16
+  stage: build
+  services:
+  - docker:20.10.16-dind
+  variables:
+    LANG: pl
+    # https://spacy.io/models/en#en_core_web_md
+    MODEL: pl_core_news_md
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build --build-arg NLP_MODEL=$MODEL -t $CI_REGISTRY_IMAGE/$LANG:latest .
+    - docker push $CI_REGISTRY_IMAGE/$LANG:latest
+  only:
+    - master
+
+# ======================= acceptance ==============================
+test-image-ru:
+  image: curlimages/curl
+  stage: acceptance
+  variables:
+    LANG: ru
+  services:
+    - name: $CI_REGISTRY_IMAGE/$LANG:latest
+      alias: text-to-vec-ru
+  script:
+    # - curl http://text-to-vec-ru:8000/health
+    - EXPECTED=$(cat tests/expected-ru.json)
+    - |
+      RESPONSE=$(curl -X 'POST' 'http://text-to-vec-ru:8000/nlp_model/vectorize' -H 'accept: application/json' -H 'Content-Type: application/json' -d '{"text": "привет"}')
+    - |
+      [ "$RESPONSE" == "$EXPECTED" ] && echo "service response is correct" || echo "service response not equals expected; response = $RESPONSE; expected=$EXPECTED"
+    - |
+      [ "$RESPONSE" == "$EXPECTED" ]
+  only:
+    - master
+
+test-image-en:
+  image: curlimages/curl
+  stage: acceptance
+  variables:
+    LANG: en
+  services:
+    - name: $CI_REGISTRY_IMAGE/$LANG:latest
+      alias: text-to-vec-en
+  script:
+    - EXPECTED=$(cat tests/expected-en.json)
+    - |
+      RESPONSE=$(curl -X 'POST' 'http://text-to-vec-en:8000/nlp_model/vectorize' -H 'accept: application/json' -H 'Content-Type: application/json' -d '{"text": "hello"}')
+    - |
+      [ "$RESPONSE" == "$EXPECTED" ] && echo "service response is correct" || echo "service response not equals expected; response = $RESPONSE; expected=$EXPECTED"
+    - |
+      [ "$RESPONSE" == "$EXPECTED" ]
+  only:
+    - master
+
+test-image-pl:
+  image: curlimages/curl
+  stage: acceptance
+  variables:
+    LANG: pl
+  services:
+    - name: $CI_REGISTRY_IMAGE/$LANG:latest
+      alias: text-to-vec-pl
+  script:
+    - EXPECTED=$(cat tests/expected-pl.json)
+    - |
+      RESPONSE=$(curl -X 'POST' 'http://text-to-vec-pl:8000/nlp_model/vectorize' -H 'accept: application/json' -H 'Content-Type: application/json' -d '{"text": "dzień dobry"}')
+    - |
+      [ "$RESPONSE" == "$EXPECTED" ] && echo "service response is correct" || echo "service response not equals expected; response = $RESPONSE; expected=$EXPECTED"
+    - |
+      [ "$RESPONSE" == "$EXPECTED" ]
+  only:
+    - master

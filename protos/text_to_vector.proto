@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+// Accepts text and transforms it to vector in word embedding space using nlp model server is started with
+service TextToVector {
+  rpc Transform(Text) returns (Vector);
+}
+
+// Text to transform to vector
+message Text {
+  string text = 1;
+}
+
+// Vector in word embedding space
+message Vector {
+  repeated double vector = 1;
+}
