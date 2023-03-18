@@ -1,19 +1,18 @@
 [tool.poetry]
-name = "chipa-text-to-vector"
-version = "2.0.0"
-description = "Text-to-vector service: grpc API for spacy nlp to transform text to vector"
+name = "spacy-grpc-text-to-vector"
+version = "1.0.0"
+description = "gRPC API for spacy nlp text-to-vector function"
 license = "MIT"
 authors = ["Chernetsov Artyom <archertech.ru>"]
 readme = "README.md"
-homepage = "https://gitlab.com/autofaqer-group/nlp-text-to-vector"
-repository = "https://gitlab.com/autofaqer-group/nlp-text-to-vector"
-#documentation = "https://docs.temporal.io/docs/python"
+homepage = "https://gitlab.com/archertech-chipa/spacy-grpc-text-to-vector"
+repository = "https://gitlab.com/archertech-chipa/spacy-grpc-text-to-vector"
 packages = [
     { include = "**/*.py", from = "."  }
 ]
 
 [tool.poetry.urls]
-"Bug Tracker" = "https://gitlab.com/autofaqer-group/nlp-text-to-vector/-/issues"
+"Bug Tracker" = "https://gitlab.com/archertech-chipa/spacy-grpc-text-to-vector/-/issues"
 
 [tool.poetry.dependencies]
 python = "^3.10"
