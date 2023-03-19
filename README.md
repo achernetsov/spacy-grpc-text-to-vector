@@ -34,7 +34,7 @@ poetry install --without dev
 Run testing client script:
 
 ```shell
-GRPC_DNS_RESOLVER=native python test_client.py "hello world!"
+GRPC_DNS_RESOLVER=native TEXT_TO_VECTOR_SERVICE=localhost:50051 python test_client.py "hello world!"
 ```
 
 You should see vector representation of your text:
