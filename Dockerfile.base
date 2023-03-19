@@ -19,13 +19,7 @@ RUN apt-get update \
     && curl -sSL https://install.python-poetry.org | python3 -
 
 WORKDIR /src
-
-# copy only pyproject.toml and poetry.lock file nothing else here
 COPY pyproject.toml ./
-
-# this will create the folder /app/.venv (might need adjustment depending on which poetry version you are using)
-# RUN poetry install --no-root --no-ansi --without dev
-
 RUN poetry export -f requirements.txt --no-ansi --without dev --without-hashes -o /src/requirements.txt
 
 # -----------------------------------------------------------------

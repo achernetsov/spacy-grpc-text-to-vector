@@ -18,7 +18,7 @@ class Settings(BaseSettings):
 
 class TextToVector(text_to_vector_pb2_grpc.TextToVectorServicer):
     async def Transform(self, request: text_to_vector_pb2.Text, context):
-        logging.debug(f'Translating: {request.text}')
+        logging.debug(f'Transforming: {request.text}')
         vector = nlp(request.text).vector
 
         return text_to_vector_pb2.Vector(vector=vector)

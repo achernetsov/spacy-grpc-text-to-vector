@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     text_to_vector_service: str
 
 
-async def run(dimension: int, cos_sim_threshold: float, text1: str, text2: str) -> None:
+async def run(dimension: int, min_cos_sim: float, text1: str, text2: str) -> None:
     async with grpc.aio.insecure_channel(settings.text_to_vector_service) as channel:
         stub = text_to_vector_pb2_grpc.TextToVectorStub(channel)
         print(f"Transforming text1: {text1}")
@@ -33,8 +33,8 @@ async def run(dimension: int, cos_sim_threshold: float, text1: str, text2: str) 
     v2 = np.array(vec2.vector)
     cos_sim = dot(v1, v2) / (norm(v1) * norm(v2))
     print(f"cos_sim = {cos_sim}")
-    assert cos_sim >= cos_sim_threshold
-    print(f"Cosine similarity within accepted range")
+    assert cos_sim >= min_cos_sim
+    print(f"Cosine similarity >= minimum threshold {min_cos_sim}")
 
 
 if __name__ == "__main__":
