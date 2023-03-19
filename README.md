@@ -1,6 +1,6 @@
 # Overview
 
-gRPC API for [spacy.io](spacy.io) nlp text-to-vector function, to transform text to vector using pretrained
+gRPC API for [spacy.io](spacy.io) ```nlp("some text").vector```, to transform text to vector using pretrained
 spacy [models](https://spacy.io/models).
 
 For HTTP API, see [spacy fastapi](https://spacy.io/usage/projects#fastapi).
@@ -31,24 +31,21 @@ Prerequisites:
 poetry install --without dev
 ```
 
-Run testing client script:
+Project includes testing script:
 
 ```shell
-GRPC_DNS_RESOLVER=native TEXT_TO_VECTOR_SERVICE=localhost:50051 python test_client.py "hello world!"
+GRPC_DNS_RESOLVER=native TEXT_TO_VECTOR_SERVICE=text-to-vec-$LANG:50051 \
+  python tester-client.py dim=300 min_similarity=0.71 "how old are you?" \
+  "what is your age?"
 ```
 
-You should see vector representation of your text:
+Script calls server to transform 2 texts to vectors and checks that vectors are similar enough.
 
-```
-Transforming text: hello world
-Vector: [2.3329999446868896, 1.0103850364685059,...
-```
+Script is used in CI acceptance tests.
 
 ## Building image for other NLP models
 
-Image can be created for any available spacy [model](https://spacy.io/models): 
-
-1. Build dockerfile for required model
+Image can be created for any available spacy [model](https://spacy.io/models):
 
 Example of building image for English model:
 
@@ -71,14 +68,27 @@ poetry install
 
 ## Testing
 
-### No unit test
+### Integration (acceptance) tests
 
-Problem with unit test: NLP model should be downloaded.
+See .gitlab-ci.yml
 
-### Integration test
+Example:
 
-System is tested in CI pipeline, using docker image, see .gitlab-ci.yml
-
+```yaml
+test-image-en:
+  image: $CI_REGISTRY_IMAGE/base:latest
+  stage: acceptance
+  variables:
+    LANG: en
+  services:
+    - name: $CI_REGISTRY_IMAGE/$LANG:latest
+      alias: text-to-vec-en
+  script:
+    - |
+      GRPC_DNS_RESOLVER=native TEXT_TO_VECTOR_SERVICE=text-to-vec-$LANG:50051 \
+          python tester-client.py dim=300 min_similarity=0.71 "how old are you?" \
+          "what is your age?"
+```
 
 # Credits
 * [spacy.io](https://spacy.io)
