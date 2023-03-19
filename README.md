@@ -92,4 +92,5 @@ test-image-en:
 
 # Credits
 * [spacy.io](https://spacy.io)
-* This project was created as part of [chipa bots](https://archertech.ru/projects/chipa/) system.
+* This project was created as part of [chipa bots](https://archertech.ru/projects/chipa/) system. 
+[blog post >>](https://archertech.ru/posts/2023-03-18-chipa-text-to-vector)
