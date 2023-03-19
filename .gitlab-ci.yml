@@ -69,7 +69,7 @@ build-image-pl-latest:
 
 # ======================= acceptance ==============================
 test-image-ru:
-  image: curlimages/curl
+  image: $CI_REGISTRY_IMAGE/base:latest
   when: manual
   stage: acceptance
   variables:
@@ -78,19 +78,15 @@ test-image-ru:
     - name: $CI_REGISTRY_IMAGE/$LANG:latest
       alias: text-to-vec-ru
   script:
-    # - curl http://text-to-vec-ru:8000/health
-    - EXPECTED=$(cat tests/expected-ru.json)
     - |
-      RESPONSE=$(curl -X 'POST' 'http://text-to-vec-ru:8000/nlp_model/vectorize' -H 'accept: application/json' -H 'Content-Type: application/json' -d '{"text": "привет"}')
-    - |
-      [ "$RESPONSE" == "$EXPECTED" ] && echo "service response is correct" || echo "service response not equals expected; response = $RESPONSE; expected=$EXPECTED"
-    - |
-      [ "$RESPONSE" == "$EXPECTED" ]
+      GRPC_DNS_RESOLVER=native TEXT_TO_VECTOR_SERVICE=text-to-vec-$LANG:50051 \
+          python tester-client.py dim=300 min_similarity=0.75 "Когда планируется день открытых дверей?" \
+          "В какой день пройдет день открытых дверей?"
   only:
     - master
 
 test-image-en:
-  image: curlimages/curl
+  image: $CI_REGISTRY_IMAGE/base:latest
   when: manual
   stage: acceptance
   variables:
@@ -99,18 +95,15 @@ test-image-en:
     - name: $CI_REGISTRY_IMAGE/$LANG:latest
       alias: text-to-vec-en
   script:
-    - EXPECTED=$(cat tests/expected-en.json)
     - |
-      RESPONSE=$(curl -X 'POST' 'http://text-to-vec-en:8000/nlp_model/vectorize' -H 'accept: application/json' -H 'Content-Type: application/json' -d '{"text": "hello"}')
-    - |
-      [ "$RESPONSE" == "$EXPECTED" ] && echo "service response is correct" || echo "service response not equals expected; response = $RESPONSE; expected=$EXPECTED"
-    - |
-      [ "$RESPONSE" == "$EXPECTED" ]
+      GRPC_DNS_RESOLVER=native TEXT_TO_VECTOR_SERVICE=text-to-vec-$LANG:50051 \
+          python tester-client.py dim=300 min_similarity=0.71 "how old are you?" \
+          "what is your age?"
   only:
     - master
 
 test-image-pl:
-  image: curlimages/curl
+  image: $CI_REGISTRY_IMAGE/base:latest
   when: manual
   stage: acceptance
   variables:
@@ -119,12 +112,9 @@ test-image-pl:
     - name: $CI_REGISTRY_IMAGE/$LANG:latest
       alias: text-to-vec-pl
   script:
-    - EXPECTED=$(cat tests/expected-pl.json)
     - |
-      RESPONSE=$(curl -X 'POST' 'http://text-to-vec-pl:8000/nlp_model/vectorize' -H 'accept: application/json' -H 'Content-Type: application/json' -d '{"text": "dzień dobry"}')
-    - |
-      [ "$RESPONSE" == "$EXPECTED" ] && echo "service response is correct" || echo "service response not equals expected; response = $RESPONSE; expected=$EXPECTED"
-    - |
-      [ "$RESPONSE" == "$EXPECTED" ]
+      GRPC_DNS_RESOLVER=native TEXT_TO_VECTOR_SERVICE=text-to-vec-$LANG:50051 \
+          python tester-client.py dim=300 min_similarity=0.68 \
+          "które miasto jest najlepsze?" "gdzie jest najlepsze miejsce do życia?"
   only:
     - master

@@ -40,4 +40,3 @@ RUN pip install --no-cache-dir --user -r requirements.txt
 
 COPY text_to_vector_pb2.py ./text_to_vector_pb2.py
 COPY text_to_vector_pb2_grpc.py ./text_to_vector_pb2_grpc.py
-COPY service.py ./service.py
