@@ -1,3 +1,5 @@
+Mirror of https://gitlab.com/archertech-chipa/spacy-grpc-text-to-vector
+
 # Overview
 
 gRPC API for [spacy.io](spacy.io) ```nlp("some text").vector```, to transform text to vector using pretrained
